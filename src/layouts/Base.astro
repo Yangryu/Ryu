@@ -5,6 +5,11 @@ import { SITE, url } from "../consts";
 const { title, description, current } = Astro.props;
 const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} · ${SITE.tagline}`;
 
+// 首页用满配背景，内页收着来
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const here = Astro.url.pathname.replace(/\/$/, "");
+const isHome = here === base || here === "";
+
 const nav = [
   { href: url("/"), label: "大厅", key: "home" },
   { href: url("/columns/"), label: "专栏", key: "columns" },
@@ -21,11 +26,16 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description ?? SITE.description} />
-    <meta name="theme-color" content="#0c0d10" />
+    <meta name="theme-color" content="#14151d" />
     <link rel="icon" href={url("/favicon.svg")} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.title} · RSS`} href={url("/rss.xml")} />
   </head>
-  <body>
+  <body class={isHome ? "page-home" : "page-inner"}>
+    <div class="bg-media" aria-hidden="true">
+      <video autoplay muted loop playsinline preload="metadata" poster={url("/bg/poster.jpg")}>
+        <source src={url("/bg/bg.mp4")} type="video/mp4" />
+      </video>
+    </div>
     <div class="atmosphere" aria-hidden="true"></div>
 
     <header class="site-header container">
@@ -53,5 +63,19 @@ const nav = [
       <span>认真生活，慢慢记录。</span>
       <a href={url("/rss.xml")}>RSS 订阅</a>
     </footer>
+
+    {
+      isHome && (
+        <script is:inline>
+          // 往下滚时让壁纸淡下去，正文回到深色底
+          const setDim = () => {
+            const v = Math.min(window.scrollY / 620, 1).toFixed(3);
+            document.documentElement.style.setProperty("--scroll-dim", v);
+          };
+          setDim();
+          window.addEventListener("scroll", setDim, { passive: true });
+        </script>
+      )
+    }
   </body>
 </html>
