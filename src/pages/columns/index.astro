@@ -1,0 +1,31 @@
+---
+import Base from "../../layouts/Base.astro";
+import { url } from "../../consts";
+import { COLUMNS, getPosts, columnSlug } from "../../lib/posts";
+
+const posts = await getPosts();
+const counts = new Map<string, number>();
+for (const p of posts) counts.set(p.data.column, (counts.get(p.data.column) ?? 0) + 1);
+---
+
+<Base title="专栏" current="columns">
+  <section class="hero" style="padding-block:56px 40px">
+    <p class="eyebrow">五个角落</p>
+    <h1 style="font-size:clamp(26px,4vw,38px)"><span>每一种记录，</span><span class="second-line">都有自己的位置。</span></h1>
+  </section>
+
+  <div class="column-grid">
+    {
+      COLUMNS.map((c, i) => (
+        <a class="column-card" href={url(`/columns/${columnSlug(c.name)}/`)}>
+          <div class="column-card-top">
+            <span class="column-number">{String(i + 1).padStart(2, "0")}</span>
+            <span>{counts.get(c.name) ?? 0} 篇</span>
+          </div>
+          <h3>{c.name}</h3>
+          <p>{c.desc}</p>
+        </a>
+      ))
+    }
+  </div>
+</Base>

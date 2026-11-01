@@ -1,0 +1,34 @@
+---
+import Base from "../../layouts/Base.astro";
+import { url } from "../../consts";
+import { getPosts } from "../../lib/posts";
+
+const posts = await getPosts();
+const counts = new Map<string, number>();
+for (const p of posts) {
+  for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+}
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<Base title="标签" current="tags">
+  <section class="hero" style="padding-block:56px 34px">
+    <p class="eyebrow">标签</p>
+    <h1 style="font-size:clamp(26px,4vw,38px)"><span>按标签翻翻看</span></h1>
+    <p class="hero-description">一共 {tags.length} 个标签。</p>
+  </section>
+
+  {
+    tags.length ? (
+      <ul class="tag-list">
+        {tags.map(([name, n]) => (
+          <li>
+            <a href={url(`/tags/${name}/`)}># {name} <span style="color:var(--dim)">{n}</span></a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">还没有标签。</p>
+    )
+  }
+</Base>

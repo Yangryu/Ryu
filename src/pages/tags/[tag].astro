@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+import { url } from "../../consts";
+import { getPosts, excerptOf, shortDate } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const names = [...new Set(posts.flatMap((p) => p.data.tags))];
+  return names.map((name) => ({
+    params: { tag: name },
+    props: { name, posts: posts.filter((p) => p.data.tags.includes(name)) },
+  }));
+}
+
+const { name, posts } = Astro.props;
+---
+
+<Base title={`# ${name}`} current="tags">
+  <section class="hero" style="padding-block:56px 34px">
+    <p class="eyebrow">标签</p>
+    <h1 style="font-size:clamp(26px,4vw,38px)"><span># {name}</span></h1>
+    <p class="hero-description">共 {posts.length} 篇。</p>
+  </section>
+
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <time datetime={post.data.date.toISOString()}>{shortDate(post.data.date)}</time>
+          <div>
+            <h3><a href={url(`/posts/${post.id}/`)}>{post.data.title}</a></h3>
+            <p>{excerptOf(post)}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

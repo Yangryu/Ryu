@@ -1,0 +1,47 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { url } from "../../consts";
+import { getPosts, excerptOf, formatDate, columnSlug } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={excerptOf(post, 120)} current="home">
+  <article class="article">
+    <header class="article-header">
+      <h1>{post.data.title}</h1>
+      <div class="article-meta">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <a href={url(`/columns/${columnSlug(post.data.column)}/`)}>{post.data.column}</a>
+        {
+          post.data.tags.length > 0 && (
+            <ul class="tag-list">
+              {post.data.tags.map((t) => (
+                <li><a href={url(`/tags/${t}/`)}># {t}</a></li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </header>
+
+    <div class="article-body">
+      <Content />
+    </div>
+
+    <footer class="article-footer">
+      <a href={url("/")}>← 回到大厅</a>
+      <a href={url("/archive/")}>归档</a>
+    </footer>
+  </article>
+</Base>

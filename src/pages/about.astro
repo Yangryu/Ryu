@@ -1,0 +1,34 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE, url } from "../consts";
+---
+
+<Base title="关于" current="about">
+  <article class="article">
+    <header class="article-header">
+      <h1>关于</h1>
+      <div class="article-meta">
+        <span>{SITE.author}</span>
+      </div>
+    </header>
+
+    <div class="article-body">
+      <p>这是一个很小的站，用来放一些文字、一些日常，以及那些暂时不想忘记的瞬间。</p>
+
+      <h2>这里有什么</h2>
+      <ul>
+        <li><strong>生活随笔</strong>：日常片段、个人感想和生活中的体会</li>
+        <li><strong>学习记录</strong>：学习笔记、练习过程、知识整理和踩坑记录</li>
+        <li><strong>作品集</strong>：做过的项目、小工具和成果展示</li>
+        <li><strong>爱好</strong>：游戏、音乐、书影音，和那些愿意花时间的喜欢</li>
+        <li><strong>小站日志</strong>：这个小站怎么搭起来的、又改了什么</li>
+      </ul>
+
+      <h2>怎么更新</h2>
+      <p>文章放在 <code>src/content/blog/</code>，一个 <code>.md</code> 一篇。写完提交推送到 GitHub，会自动构建发布。</p>
+
+      <h2>联系</h2>
+      <p>站点地址：<a href={url("/")}>{SITE.title}</a></p>
+    </div>
+  </article>
+</Base>

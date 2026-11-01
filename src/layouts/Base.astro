@@ -1,0 +1,57 @@
+---
+import "../styles/global.css";
+import { SITE, url } from "../consts";
+
+const { title, description, current } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} · ${SITE.tagline}`;
+
+const nav = [
+  { href: url("/"), label: "大厅", key: "home" },
+  { href: url("/columns/"), label: "专栏", key: "columns" },
+  { href: url("/tags/"), label: "标签", key: "tags" },
+  { href: url("/archive/"), label: "归档", key: "archive" },
+  { href: url("/about/"), label: "关于", key: "about" },
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description ?? SITE.description} />
+    <meta name="theme-color" content="#0c0d10" />
+    <link rel="icon" href={url("/favicon.svg")} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.title} · RSS`} href={url("/rss.xml")} />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <header class="site-header container">
+      <a class="brand" href={url("/")}>
+        <strong>{SITE.title}</strong>
+        <span>{SITE.tagline}</span>
+      </a>
+      <nav aria-label="主导航">
+        {
+          nav.map((item) => (
+            <a href={item.href} class={item.key === current ? "current" : ""} aria-current={item.key === current ? "page" : undefined}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+
+    <main class="container">
+      <slot />
+    </main>
+
+    <footer class="site-footer container">
+      <span>© {new Date().getFullYear()} {SITE.author}</span>
+      <span>认真生活，慢慢记录。</span>
+      <a href={url("/rss.xml")}>RSS 订阅</a>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+---
+import Base from "../layouts/Base.astro";
+import { url } from "../consts";
+import { getPosts, shortDate } from "../lib/posts";
+
+const posts = await getPosts();
+const byYear = new Map<number, typeof posts>();
+for (const p of posts) {
+  const y = p.data.date.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(p);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<Base title="归档" current="archive">
+  <section class="hero" style="padding-block:56px 20px">
+    <p class="eyebrow">归档</p>
+    <h1 style="font-size:clamp(26px,4vw,38px)"><span>写过的都在这里</span></h1>
+    <p class="hero-description">共 {posts.length} 篇，{years.length} 个年份。</p>
+  </section>
+
+  {
+    years.map((y) => (
+      <section>
+        <h2 class="archive-year">{y}</h2>
+        <ul class="post-list">
+          {byYear.get(y)!.map((post) => (
+            <li>
+              <time datetime={post.data.date.toISOString()}>{shortDate(post.data.date)}</time>
+              <div>
+                <h3><a href={url(`/posts/${post.id}/`)}>{post.data.title}</a></h3>
+                <div class="meta">{post.data.column}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>

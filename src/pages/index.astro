@@ -1,0 +1,67 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE, url } from "../consts";
+import { COLUMNS, getPosts, excerptOf, shortDate, columnSlug } from "../lib/posts";
+
+const posts = await getPosts();
+const counts = new Map<string, number>();
+for (const p of posts) counts.set(p.data.column, (counts.get(p.data.column) ?? 0) + 1);
+const latest = posts.slice(0, 8);
+---
+
+<Base current="home">
+  <section class="hero">
+    <p class="eyebrow">小站大厅</p>
+    <h1>
+      <span>{SITE.hero[0]}</span>
+      <span class="second-line">{SITE.hero[1]}</span>
+    </h1>
+    <p class="hero-description">{SITE.description}</p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">几个角落</h2>
+      <span class="section-caption">每一种记录，都有自己的位置。</span>
+    </div>
+    <div class="column-grid">
+      {
+        COLUMNS.map((c, i) => (
+          <a class="column-card" href={url(`/columns/${columnSlug(c.name)}/`)}>
+            <div class="column-card-top">
+              <span class="column-number">{String(i + 1).padStart(2, "0")}</span>
+              <span>{counts.get(c.name) ?? 0} 篇</span>
+            </div>
+            <h3>{c.name}</h3>
+            <p>{c.desc}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section style="margin-top:64px">
+    <div class="section-head">
+      <h2 class="section-title">最新</h2>
+      <span class="archive-count">共 {posts.length} 篇</span>
+    </div>
+    {
+      latest.length ? (
+        <ul class="post-list">
+          {latest.map((post) => (
+            <li>
+              <time datetime={post.data.date.toISOString()}>{shortDate(post.data.date)}</time>
+              <div>
+                <h3><a href={url(`/posts/${post.id}/`)}>{post.data.title}</a></h3>
+                <p>{excerptOf(post)}</p>
+                <div class="meta">{post.data.column}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">还没有文章。在 src/content/blog/ 里新建一个 .md 就会出现在这里。</p>
+      )
+    }
+  </section>
+</Base>
