@@ -4,38 +4,56 @@ import { url } from "../consts";
 import { getPosts, shortDate } from "../lib/posts";
 
 const posts = await getPosts();
-const byYear = new Map<number, typeof posts>();
+
+// 按「年 + 月」分组，比单纯按年更好找
+const groups = new Map<string, typeof posts>();
 for (const p of posts) {
-  const y = p.data.date.getFullYear();
-  if (!byYear.has(y)) byYear.set(y, []);
-  byYear.get(y)!.push(p);
+  const d = p.data.date;
+  const key = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月`;
+  if (!groups.has(key)) groups.set(key, []);
+  groups.get(key)!.push(p);
 }
-const years = [...byYear.keys()].sort((a, b) => b - a);
+const keys = [...groups.keys()];
+
+// 倒序：新的在前面
+const ordered = keys
+  .map((k) => ({
+    label: k,
+    items: groups.get(k)!,
+    stamp: groups.get(k)![0].data.date.valueOf(),
+  }))
+  .sort((a, b) => b.stamp - a.stamp);
 ---
 
 <Base title="归档" current="archive">
   <section class="hero" style="padding-block:56px 20px">
     <p class="eyebrow">归档</p>
     <h1 style="font-size:clamp(26px,4vw,38px)"><span>写过的都在这里</span></h1>
-    <p class="hero-description">共 {posts.length} 篇，{years.length} 个年份。</p>
+    <p class="hero-description">共 {posts.length} 篇，{ordered.length} 个月份。</p>
   </section>
 
   {
-    years.map((y) => (
-      <section>
-        <h2 class="archive-year">{y}</h2>
-        <ul class="post-list">
-          {byYear.get(y)!.map((post) => (
-            <li>
-              <time datetime={post.data.date.toISOString()}>{shortDate(post.data.date)}</time>
-              <div>
-                <h3><a href={url(`/posts/${post.id}/`)}>{post.data.title}</a></h3>
-                <div class="meta">{post.data.column}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))
+    ordered.length ? (
+      ordered.map(({ label, items }) => (
+        <section>
+          <h2 class="archive-year">
+            {label} <span class="archive-count">{items.length} 篇</span>
+          </h2>
+          <ul class="post-list">
+            {items.map((post) => (
+              <li>
+                <time datetime={post.data.date.toISOString()}>{shortDate(post.data.date)}</time>
+                <div>
+                  <h3><a href={url(`/posts/${post.id}/`)}>{post.data.title}</a></h3>
+                  <div class="meta">{post.data.column}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    ) : (
+      <p class="empty">还没有文章。</p>
+    )
   }
 </Base>

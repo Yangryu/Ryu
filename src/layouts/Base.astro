@@ -31,7 +31,7 @@ const nav = [
     <link rel="alternate" type="application/rss+xml" title={`${SITE.title} · RSS`} href={url("/rss.xml")} />
   </head>
   <body class={isHome ? "page-home" : "page-inner"}>
-    <div class="bg-media" aria-hidden="true">
+    <div class="bg-media" style={`--poster: url(${url("/bg/poster.jpg")})`} aria-hidden="true">
       <video autoplay muted loop playsinline preload="metadata" poster={url("/bg/poster.jpg")}>
         <source src={url("/bg/bg.mp4")} type="video/mp4" />
       </video>
